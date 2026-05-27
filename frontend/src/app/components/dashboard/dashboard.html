@@ -1,0 +1,417 @@
+<div class="dashboard-wrapper animate-fade-in" *ngIf="currentUser">
+  
+  <!-- PREMIUM TOP NAV -->
+  <header class="dashboard-nav glass-panel animate-slide-up">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">SPA Application</span>
+        <span class="brand-tag">Operational Portal</span>
+      </div>
+    </div>
+
+    <!-- Quick User Status and Actions -->
+    <div class="nav-user-area">
+      <div class="user-status-card">
+        <div class="user-avatar" [ngClass]="{'avatar-admin': isAdmin}">
+          {{ currentUser.name.charAt(0).toUpperCase() }}
+        </div>
+        <div class="user-meta-info">
+          <span class="meta-name">{{ currentUser.name }}</span>
+          <span class="badge" [ngClass]="isAdmin ? 'badge-purple' : 'badge-emerald'">
+            {{ currentUser.role }}
+          </span>
+        </div>
+      </div>
+
+      <button (click)="onLogout()" class="glass-btn glass-btn-danger logout-btn">
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="dashboard-content grid-layout animate-slide-up">
+    
+    <!-- LEFT SIDEBAR: PROFILE & LATENCY CONTROL -->
+    <aside class="sidebar-layout">
+      <!-- Session Profile Card -->
+      <section class="glass-panel profile-card glass-panel-glow-cyan">
+        <h2 class="section-title">Credentials Profile</h2>
+        <div class="profile-details">
+          <div class="detail-row">
+            <span class="detail-label">Identity ID</span>
+            <span class="detail-value text-glow">{{ currentUser.id }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">{{ currentUser.name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Comm-Link</span>
+            <span class="detail-value">{{ currentUser.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Clearance Level</span>
+            <span class="detail-value">
+              <span class="badge" [ngClass]="isAdmin ? 'badge-purple' : 'badge-emerald'">
+                {{ currentUser.role }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Simulated Latency Widget -->
+      <section class="glass-panel latency-card">
+        <h2 class="section-title">Latency Emulator</h2>
+        <p class="section-desc">Test asynchronous UI state flows by simulating backend response times.</p>
+        
+        <div class="glass-input-group select-group">
+          <label for="delay-selector" class="dropdown-label">Simulated Delay</label>
+          <select 
+            id="delay-selector" 
+            [(ngModel)]="selectedDelay"
+            class="glass-select"
+            (change)="loadRecords(); isAdmin ? loadUsers() : null"
+          >
+            <option [ngValue]="0">0ms (Instantaneous)</option>
+            <option [ngValue]="500">500ms (Low Latency)</option>
+            <option [ngValue]="1500">1500ms (Normal Network)</option>
+            <option [ngValue]="3000">3000ms (High Latency/3G)</option>
+            <option [ngValue]="5000">5000ms (Severe Network Lag)</option>
+          </select>
+        </div>
+
+        <button (click)="loadRecords(); isAdmin ? loadUsers() : null" class="glass-btn glass-btn-primary refresh-btn">
+          <svg class="btn-icon refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          <span>Sync Operations</span>
+        </button>
+      </section>
+    </aside>
+
+    <!-- RIGHT MAIN PANELS -->
+    <main class="main-panel">
+      
+      <!-- ADMIN TAB SWITCHER -->
+      <nav class="tab-navbar glass-panel" *ngIf="isAdmin">
+        <button 
+          (click)="activeTab = 'records'" 
+          class="tab-btn" 
+          [class.active]="activeTab === 'records'"
+        >
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Security Records ({{ records.length }})</span>
+        </button>
+        <button 
+          (click)="activeTab = 'admin'" 
+          class="tab-btn" 
+          [class.active]="activeTab === 'admin'"
+        >
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>User Management Control</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: DATA RECORDS GRID -->
+      <section class="glass-panel main-card animate-fade-in" *ngIf="activeTab === 'records'">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Access Records Directory</h2>
+            <p class="panel-subtitle">Access levels filtered dynamically by your active system clearance.</p>
+          </div>
+          <span class="badge badge-cyan">Clearance: {{ currentUser.role }}</span>
+        </div>
+
+        <!-- ERROR MESSAGE -->
+        <div class="error-panel" *ngIf="recordsError">
+          <p>{{ recordsError }}</p>
+        </div>
+
+        <!-- SKELETON LOADER -->
+        <div class="skeleton-table-wrapper" *ngIf="recordsLoading">
+          <div class="skeleton-header skeleton-shimmer"></div>
+          <div class="skeleton-row" *ngFor="let item of [1, 2, 3]">
+            <div class="skeleton-cell cell-s skeleton-shimmer"></div>
+            <div class="skeleton-cell cell-l skeleton-shimmer"></div>
+            <div class="skeleton-cell cell-m skeleton-shimmer"></div>
+            <div class="skeleton-cell cell-s skeleton-shimmer"></div>
+          </div>
+        </div>
+
+        <!-- RECORDS TABLE VIEW -->
+        <div class="glass-table-container animate-fade-in" *ngIf="!recordsLoading && !recordsError && records.length > 0">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>Record ID</th>
+                <th>Subject Info</th>
+                <th>Division</th>
+                <th>Security Level</th>
+                <th>Date Logged</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of records" class="record-row">
+                <td><code class="record-id">{{ record.id }}</code></td>
+                <td>
+                  <div class="subject-desc">
+                    <span class="subject-title">{{ record.title }}</span>
+                    <span class="subject-text">{{ record.description }}</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-cyan">{{ record.category }}</span></td>
+                <td>
+                  <span class="badge" 
+                    [ngClass]="{
+                      'badge-red': record.confidentiality.includes('Critical'),
+                      'badge-purple': record.confidentiality.includes('High'),
+                      'badge-cyan': record.confidentiality.includes('Medium'),
+                      'badge-emerald': record.confidentiality.includes('Low')
+                    }"
+                  >
+                    {{ record.confidentiality }}
+                  </span>
+                </td>
+                <td><span class="record-date">{{ record.date }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state animate-fade-in" *ngIf="!recordsLoading && !recordsError && records.length === 0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p>No records cleared for your current authorization credentials.</p>
+        </div>
+      </section>
+
+      <!-- TAB 2: USER DIRECTORY MANAGEMENT (ADMIN ONLY) -->
+      <section class="glass-panel main-card animate-fade-in" *ngIf="activeTab === 'admin' && isAdmin">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">System Directory Console</h2>
+            <p class="panel-subtitle">Create, review, update and purge system user access configurations.</p>
+          </div>
+          <button (click)="openAddUserForm()" class="glass-btn glass-btn-primary add-user-btn">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Add User Access</span>
+          </button>
+        </div>
+
+        <!-- ERROR MESSAGE -->
+        <div class="error-panel" *ngIf="usersError">
+          <p>{{ usersError }}</p>
+        </div>
+
+        <!-- SKELETON LOADER -->
+        <div class="skeleton-table-wrapper" *ngIf="usersLoading">
+          <div class="skeleton-header skeleton-shimmer"></div>
+          <div class="skeleton-row" *ngFor="let item of [1, 2]">
+            <div class="skeleton-cell cell-s skeleton-shimmer"></div>
+            <div class="skeleton-cell cell-m skeleton-shimmer"></div>
+            <div class="skeleton-cell cell-l skeleton-shimmer"></div>
+            <div class="skeleton-cell cell-s skeleton-shimmer"></div>
+          </div>
+        </div>
+
+        <!-- USERS TABLE VIEW -->
+        <div class="glass-table-container animate-fade-in" *ngIf="!usersLoading && !usersError && users.length > 0">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Identity Details</th>
+                <th>System Role</th>
+                <th>Operational Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <td><code class="record-id">{{ user.id }}</code></td>
+                <td>
+                  <div class="user-identity">
+                    <span class="user-display-name">{{ user.name }}</span>
+                    <span class="user-display-email">{{ user.email }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="user.role === 'Admin' ? 'badge-purple' : 'badge-emerald'">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons-group">
+                    <!-- Edit Action -->
+                    <button (click)="openEditUserForm(user)" class="glass-btn glass-btn-secondary icon-only-btn" title="Edit User">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    
+                    <!-- Delete Action -->
+                    <button 
+                      (click)="deleteUser(user.id)" 
+                      class="glass-btn glass-btn-danger icon-only-btn" 
+                      title="Delete User"
+                      [disabled]="user.id === 'admin1'"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- COLLAPSIBLE CRUD FORM PANEL -->
+        <div id="crud-form-anchor" class="crud-form-container glass-panel animate-slide-up" *ngIf="showUserForm">
+          <div class="form-header">
+            <h3 class="form-title">
+              {{ isEditing ? 'Edit System User Access' : 'Register New User Credentials' }}
+            </h3>
+            <button (click)="closeUserForm()" class="close-form-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="saveUser()" novalidate class="crud-form">
+            <div class="form-grid">
+              
+              <!-- User ID Input -->
+              <div class="glass-input-group">
+                <input 
+                  type="text" 
+                  id="formUserId" 
+                  name="formUserId"
+                  [(ngModel)]="formUserId"
+                  required
+                  placeholder=" "
+                  class="glass-input"
+                  [disabled]="isEditing"
+                />
+                <label for="formUserId" class="glass-label">User ID (Unique)</label>
+              </div>
+
+              <!-- Password Input -->
+              <div class="glass-input-group">
+                <input 
+                  type="password" 
+                  id="formPassword" 
+                  name="formPassword"
+                  [(ngModel)]="formPassword"
+                  placeholder=" "
+                  class="glass-input"
+                />
+                <label for="formPassword" class="glass-label">
+                  {{ isEditing ? 'New Password (Optional)' : 'Password' }}
+                </label>
+              </div>
+
+              <!-- Full Name Input -->
+              <div class="glass-input-group">
+                <input 
+                  type="text" 
+                  id="formName" 
+                  name="formName"
+                  [(ngModel)]="formName"
+                  required
+                  placeholder=" "
+                  class="glass-input"
+                />
+                <label for="formName" class="glass-label">Full Name</label>
+              </div>
+
+              <!-- Email Input -->
+              <div class="glass-input-group">
+                <input 
+                  type="email" 
+                  id="formEmail" 
+                  name="formEmail"
+                  [(ngModel)]="formEmail"
+                  required
+                  placeholder=" "
+                  class="glass-input"
+                />
+                <label for="formEmail" class="glass-label">Comm-Link Email</label>
+              </div>
+
+              <!-- Role Selector -->
+              <div class="glass-input-group select-group">
+                <label for="formRole" class="dropdown-label">Clearance Role</label>
+                <select 
+                  id="formRole" 
+                  name="formRole"
+                  [(ngModel)]="formRole"
+                  class="glass-select"
+                >
+                  <option value="General User">General User</option>
+                  <option value="Admin">System Administrator</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- Form Feedback Panels -->
+            <div *ngIf="formError" class="error-panel animate-fade-in">
+              <span class="error-text">{{ formError }}</span>
+            </div>
+            <div *ngIf="formSuccess" class="success-panel animate-fade-in">
+              <span class="success-text">{{ formSuccess }}</span>
+            </div>
+
+            <!-- Submit buttons -->
+            <div class="form-actions">
+              <button type="button" (click)="closeUserForm()" class="glass-btn glass-btn-secondary">
+                Cancel
+              </button>
+              <button type="submit" class="glass-btn glass-btn-primary">
+                {{ isEditing ? 'Update User Clearances' : 'Create Credentials' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>

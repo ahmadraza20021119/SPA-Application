@@ -1,0 +1,93 @@
+<div class="login-wrapper animate-fade-in">
+  <div class="login-container glass-panel glass-panel-glow-cyan animate-slide-up">
+    <div class="brand-header">
+      <div class="brand-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">SPA Application</h1>
+      <p class="brand-subtitle">Enterprise Data Portal</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
+      
+      <!-- User ID Input -->
+      <div class="glass-input-group">
+        <input 
+          type="text" 
+          id="userId" 
+          name="userId"
+          [(ngModel)]="userId"
+          required
+          placeholder=" "
+          class="glass-input"
+          [disabled]="isLoading"
+        />
+        <label for="userId" class="glass-label">User ID</label>
+      </div>
+
+      <!-- Password Input -->
+      <div class="glass-input-group">
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          [(ngModel)]="password"
+          required
+          placeholder=" "
+          class="glass-input"
+          [disabled]="isLoading"
+        />
+        <label for="password" class="glass-label">Password</label>
+      </div>
+
+      <!-- Role Selector -->
+      <div class="glass-input-group select-group">
+        <label for="role" class="dropdown-label">System Role Clearance</label>
+        <select 
+          id="role" 
+          name="role"
+          [(ngModel)]="role"
+          class="glass-select"
+          [disabled]="isLoading"
+        >
+          <option value="General User">General User</option>
+          <option value="Admin">System Administrator</option>
+        </select>
+      </div>
+
+      <!-- Error Message Panel -->
+      <div *ngIf="errorMessage" class="error-panel animate-fade-in">
+        <div class="error-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <span class="error-text">{{ errorMessage }}</span>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="glass-btn glass-btn-primary login-btn"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="!isLoading">Authorize Connection</span>
+        <div *ngIf="isLoading" class="spinner"></div>
+      </button>
+
+    </form>
+
+    <!-- Dev helper guidelines -->
+    <div class="dev-helper">
+      <p class="helper-title">Demo Access Credentials:</p>
+      <div class="helper-grid">
+        <div><span>General User:</span> <code>user1</code> / <code>password123</code></div>
+        <div><span>System Admin:</span> <code>admin1</code> / <code>admin123</code></div>
+      </div>
+    </div>
+  </div>
+</div>
