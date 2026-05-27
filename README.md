@@ -78,3 +78,7 @@ SPA/
     │   └── styles.css        # Global Glassmorphism Styles
     └── package.json
 ```
+
+## 👤 About the Author
+
+Built by [Ahmad Raza](https://github.com/ahmadraza20021119). 
